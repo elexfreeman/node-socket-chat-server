@@ -1,0 +1,20 @@
+{
+  "name": "socket-chat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "tcp": "./node_modules/.bin/node ./build/index.js",
+    "start": "tsc-watch --outDir ./build --onSuccess \"npm run tcp\""
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^14.0.22",
+    "moment": "^2.27.0",
+    "tsc-watch": "^4.2.9",
+    "typescript": "^3.9.6",
+    "uniqid": "^5.2.0"
+  }
+}
