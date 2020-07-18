@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc",
     "tcp": "./node_modules/.bin/node ./build/index.js",
-    "start": "tsc-watch --outDir ./build --onSuccess \"npm run tcp\""
+    "tcp_client": "./node_modules/.bin/node ./build/client.js",
+    "start": "tsc-watch --outDir ./build --onSuccess \"npm run tcp\"",
+    "client": "tsc-watch --outDir ./build --onSuccess \"npm run tcp_client\""
   },
   "author": "",
   "license": "MIT",
