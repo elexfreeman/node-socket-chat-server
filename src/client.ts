@@ -26,8 +26,15 @@ client.connect(port, host, function () {
 
 });
 
-client.on('data', function (data) {
-    console.log('Received: ' + data);
+client.on('data', function (data: Buffer) {
+    try {
+        const msg = MessageFabric.BuildFromBuffer(data);
+
+        console.log('Received: ' + msg.content);
+    } catch (e) {
+
+    }
+
     //client.destroy(); // kill client after server's response
 });
 
@@ -55,9 +62,8 @@ rl.on('line', (line: string) => {
         address_type: EAddressType.Room,
     });
 
-    console.log(Message.toString(msg));
     client.write(Message.toString(msg));
-    
+
 
     rl.prompt();
 }).on('close', () => {

@@ -1,7 +1,7 @@
 import { IMsgProvider, MsgCallback, IMessage, EAddressType } from "./IMessage";
 import { IASocketClient } from "../SocketClient/ISocketClient";
 import { MessageFabric } from "./MessageFabric";
-import { IARoom, IRoom } from "../Room/IRoom";
+import { ARoom, IRoom } from "../Room/IRoom";
 import { Room } from "../Room/Room";
 
 /**
@@ -10,9 +10,9 @@ import { Room } from "../Room/Room";
 export class MsgProvider implements IMsgProvider {
 
     public aClient: IASocketClient;
-    public aRoom: IARoom;
+    public aRoom: ARoom;
 
-    constructor(aClient: IASocketClient, aRoom: IARoom) {
+    constructor(aClient: IASocketClient, aRoom: ARoom) {
         this.aClient = aClient;
         this.aRoom = aRoom;
     }
@@ -34,8 +34,10 @@ export class MsgProvider implements IMsgProvider {
                 throw "Message contains no addressee"
             }
 
-            if (!this.aClient[msg.to]) {
-                throw "Address is invalid";
+            console.log('sdsd',msg);
+            
+            if (msg.address_type == EAddressType.Room) {
+                await this.faSendMsgToRoom(msg, this.aRoom[msg.to]);
             }
 
             this.faSendMsg({
@@ -45,6 +47,8 @@ export class MsgProvider implements IMsgProvider {
             });
 
         } catch (e) {
+            console.log(e);
+            
             this.faSendMsg({
                 to: token,
                 from: "",
@@ -91,6 +95,8 @@ export class MsgProvider implements IMsgProvider {
      */
     async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
 
+        console.log('senf to room');
+        
         if (!this.aRoom[room.token]) {
             throw 'This room is not exist!';
         }

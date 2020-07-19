@@ -1,3 +1,5 @@
+import { Room } from "./Room";
+
 /**
  * Комнату чатов
  */
@@ -7,8 +9,8 @@ export interface IRoom {
     aClient: string[];
 }
 
-export interface IARoom {
-    [key: string]: IRoom;
+export interface ARoom {
+    [key: string]: Room;
 }
 
 export const default_room = 'default_room';

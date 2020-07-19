@@ -1,9 +1,9 @@
-import { IRoom, IARoom, default_room } from "./IRoom";
+import { IRoom, ARoom, default_room } from "./IRoom";
 import { Room } from "./Room";
 
 export class RoomFabric {
 
-    static fCreateDefaultRoom(aRoom: IARoom): Room {
+    static fCreateDefaultRoom(aRoom: ARoom): Room {
         let resp = new Room();
 
         resp.aClient = [];

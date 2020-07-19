@@ -6,7 +6,7 @@ import { User } from "./Modules/User/User";
 import { IASocketClient } from "./Modules/SocketClient/ISocketClient";
 import { MsgProvider } from "./Modules/Message/MsgProvider";
 import { IMessage } from "./Modules/Message/IMessage";
-import { IARoom } from "./Modules/Room/IRoom";
+import { ARoom, default_room } from "./Modules/Room/IRoom";
 import { RoomFabric } from "./Modules/Room/RoomFabric";
 
 /**
@@ -18,7 +18,7 @@ const fGetNowDataStr = (): string => moment().format('DD.MM.YYYY HH:mm:ss');
 const aSocketClient: IASocketClient = {};
 
 // our rooms
-const aRoom: IARoom = {};
+const aRoom: ARoom = {};
 // create default room
 RoomFabric.fCreateDefaultRoom(aRoom);
 
@@ -50,6 +50,7 @@ const server = net.createServer((socket: net.Socket) => {
     });
 
     console.log(`[${fGetNowDataStr()}] Client connect ${user.token}`);
+    aRoom[default_room].fJoin(user);
 
 
     /* receiving data from a client */
