@@ -1,7 +1,7 @@
-import { IMsgProvider, MsgCallback, IMessage, EAddressType } from "./IMessage";
+import { IMsgProvider, IMessage, EAddressType } from "./IMessage";
 import { IASocketClient } from "../SocketClient/ISocketClient";
 import { MessageFabric } from "./MessageFabric";
-import { ARoom, IRoom } from "../Room/IRoom";
+import { ARoom } from "../Room/IRoom";
 import { Room } from "../Room/Room";
 
 /**
@@ -34,21 +34,17 @@ export class MsgProvider implements IMsgProvider {
                 throw "Message contains no addressee"
             }
 
-            console.log('sdsd',msg);
-            
+            // получили сообщенеи из комнаты
             if (msg.address_type == EAddressType.Room) {
+                console.log(`Msg from ${token} >>`, msg.content);
                 await this.faSendMsgToRoom(msg, this.aRoom[msg.to]);
             }
 
-            this.faSendMsg({
-                to: msg.to,
-                from: token,
-                content: msg.content,
-            });
 
         } catch (e) {
+            // ошибка при приеме сообщения
             console.log(e);
-            
+            // отправляем обратно клиенту ошибку
             this.faSendMsg({
                 to: token,
                 from: "",
@@ -64,7 +60,7 @@ export class MsgProvider implements IMsgProvider {
     async faSendMsg(msg: IMessage): Promise<boolean> {
         let resp = true;
         try {
-            this.aClient[msg.from].socket.write(JSON.stringify(msg));
+            this.aClient[msg.to].socket.write(JSON.stringify(msg));
         } catch {
             resp = false;
         }
@@ -95,18 +91,24 @@ export class MsgProvider implements IMsgProvider {
      */
     async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
 
-        console.log('senf to room');
-        
         if (!this.aRoom[room.token]) {
             throw 'This room is not exist!';
         }
 
-        const msg = MessageFabric.Build(data);
-        msg.address_type = EAddressType.Room;
-        msg.to = room.token;
-
+        // перебираем клиентов в комнате и отправляем им сообщения
         for (let k = 0; k < room.aClient.length; k++) {
-            await this.faSendMsg(msg);
+            // try-catch так-как клиента может не быть
+            try {
+                if (room.aClient[k] == data.from) { continue }
+
+                const msg = MessageFabric.Build(data);
+                msg.address_type = EAddressType.Room;
+                msg.from = room.token;
+                msg.to = room.aClient[k];
+                await this.faSendMsg(msg);
+            } catch (e) {
+                console.log(e);
+            }
         }
 
         return true;

@@ -5,37 +5,30 @@ import { default_room } from "./Modules/Room/IRoom";
 import { Message } from "./Modules/Message/Message";
 import { EAddressType } from "./Modules/Message/IMessage";
 
-const EventEmitter = require('events');
-
-
-const readline = require('readline');
+import { EventEmitter } from 'events';
+import * as readline from 'readline';
 
 // The port number and hostname of the server.
 const port = 3007;
 const host = '127.0.0.1';
 
-var client = new net.Socket();
 class MyEmitter extends EventEmitter { }
 const myEmitter = new MyEmitter();
 
+const client = new net.Socket();
 
 client.connect(port, host, function () {
-    console.log('Connected');
-    client.write('Hello, server! Love, Client.');
+    console.log(`Connected to server ${host}:${port}`);
+    // запускаем эвент набора текста
     myEmitter.emit('event');
-
 });
 
-client.on('data', function (data: Buffer) {
+client.on('data', (data: Buffer) => {
     try {
         const msg = MessageFabric.BuildFromBuffer(data);
-
         console.log('Received: ' + msg.content);
     } catch (e) {
-
     }
-
-    //client.destroy(); // kill client after server's response
 });
 
 client.on('close', function () {
@@ -43,30 +36,28 @@ client.on('close', function () {
 });
 
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+myEmitter.on('event', () => {
 
-
-
-rl.prompt();
-
-rl.on('line', (line: string) => {
-
-    const m = line.trim();
-    const msg = MessageFabric.Build({
-        content: m,
-        to: default_room,
-        from: '',
-        address_type: EAddressType.Room,
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
     });
 
-    client.write(Message.toString(msg));
-
-
     rl.prompt();
-}).on('close', () => {
-    console.log('Have a great day!');
-    process.exit(0);
+
+    rl.on('line', (line: string) => {
+
+        const m = line.trim();
+        const msg = MessageFabric.Build({
+            content: m,
+            to: default_room,
+            from: '',
+            address_type: EAddressType.Room,
+        });
+
+        client.write(Message.toString(msg));
+        rl.prompt();
+    }).on('close', () => {
+        process.exit(0);
+    });
 });
