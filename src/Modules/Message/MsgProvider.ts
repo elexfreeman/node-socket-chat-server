@@ -1,20 +1,21 @@
 import { IMsgProvider, IMessage, EAddressType } from "./IMessage";
-import { IASocketClient } from "../SocketClient/ISocketClient";
+import { IASocketClient } from "../socketClient/ISocketClient";
 import { MessageFabric } from "./MessageFabric";
-import { ARoom } from "../Room/IRoom";
+import { IARoom } from "../Room/IRoom";
 import { Room } from "../Room/Room";
+import { ARoom } from "../Room/ARoom";
+
+import { aSocketClient } from "../socketClient";
 
 /**
  * Класс отправляет и получает сообщения от клиентов
  */
 export class MsgProvider implements IMsgProvider {
 
-    public aClient: IASocketClient;
-    public aRoom: ARoom;
+    public rooms: ARoom;
 
-    constructor(aClient: IASocketClient, aRoom: ARoom) {
-        this.aClient = aClient;
-        this.aRoom = aRoom;
+    constructor(rooms: ARoom) {
+        this.rooms = rooms;
     }
 
     /**
@@ -23,7 +24,6 @@ export class MsgProvider implements IMsgProvider {
      * @param data  - данные сообщения
      */
     async faOnReserveMsg(token: string, data: Buffer): Promise<void> {
-        console.log(data.toString());
         try {
 
             const msg = MessageFabric.BuildFromBuffer(data)
@@ -37,7 +37,7 @@ export class MsgProvider implements IMsgProvider {
             // получили сообщенеи из комнаты
             if (msg.address_type == EAddressType.Room) {
                 console.log(`Msg from ${token} >>`, msg.content);
-                await this.faSendMsgToRoom(msg, this.aRoom[msg.to]);
+                await this.faSendMsgToRoom(msg, this.rooms.aRoom[msg.to]);
             }
 
 
@@ -45,11 +45,11 @@ export class MsgProvider implements IMsgProvider {
             // ошибка при приеме сообщения
             console.log(e);
             // отправляем обратно клиенту ошибку
-            this.faSendMsg({
+           /*  this.faSendMsg({
                 to: token,
                 from: "",
                 content: e,
-            });
+            }); */
         }
     }
 
@@ -60,7 +60,7 @@ export class MsgProvider implements IMsgProvider {
     async faSendMsg(msg: IMessage): Promise<boolean> {
         let resp = true;
         try {
-            this.aClient[msg.to].socket.write(JSON.stringify(msg));
+            aSocketClient[msg.to].socket.write(JSON.stringify(msg));
         } catch {
             resp = false;
         }
@@ -73,12 +73,11 @@ export class MsgProvider implements IMsgProvider {
      */
     async faSendMsgAll(msg: IMessage): Promise<boolean> {
         // The fastest cycle-busting object elements
-        const aClientKey = Object.keys(this.aClient);
+        const aClientKey = Object.keys(aSocketClient);
         for (let i = 0; i < aClientKey.length; i++) {
             // the socket may not exist, try..catch help us
             try {
-                this.aClient[aClientKey[i]].socket.write(JSON.stringify(msg));
-
+                aSocketClient[aClientKey[i]].socket.write(JSON.stringify(msg));
             } catch { }
         }
         return true;
@@ -91,7 +90,7 @@ export class MsgProvider implements IMsgProvider {
      */
     async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
 
-        if (!this.aRoom[room.token]) {
+        if (!this.rooms.aRoom[room.token]) {
             throw 'This room is not exist!';
         }
 

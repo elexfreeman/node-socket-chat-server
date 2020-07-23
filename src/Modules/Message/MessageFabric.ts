@@ -23,6 +23,7 @@ export class MessageFabric {
 
 
     static BuildFromBuffer(data: Buffer) {
+        console.log('buffer.length', data.length);
         return MessageFabric.Build(JSON.parse(data.toString()))
     }
 }

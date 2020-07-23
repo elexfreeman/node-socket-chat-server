@@ -9,7 +9,7 @@ export interface IRoom {
     aClient: string[];
 }
 
-export interface ARoom {
+export interface IARoom {
     [key: string]: Room;
 }
 

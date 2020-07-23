@@ -24,7 +24,6 @@ export interface IMessage {
 export type MsgCallback = (msg: IMessage) => void;
 
 export interface IMsgProvider {
-    aClient: IASocketClient;
     faOnReserveMsg: (token: string, data: Buffer) => Promise<void>;
     faSendMsg: (msg: IMessage) => Promise<boolean>;
     faSendMsgAll: (msg: IMessage) => Promise<boolean>;

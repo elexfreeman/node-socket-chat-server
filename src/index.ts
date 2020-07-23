@@ -5,8 +5,11 @@ import { fGenerateToken } from "./Lib/HashFunc";
 import { User } from "./Modules/User/User";
 import { IASocketClient } from "./Modules/SocketClient/ISocketClient";
 import { MsgProvider } from "./Modules/Message/MsgProvider";
-import { ARoom, default_room } from "./Modules/Room/IRoom";
+import { IARoom, default_room } from "./Modules/Room/IRoom";
 import { RoomFabric } from "./Modules/Room/RoomFabric";
+import { ARoom } from "./Modules/Room/ARoom";
+
+import { aSocketClient } from "./Modules/socketClient";
 
 /**
  * The current date
@@ -14,16 +17,13 @@ import { RoomFabric } from "./Modules/Room/RoomFabric";
 const fGetNowDataStr = (): string => moment().format('DD.MM.YYYY HH:mm:ss');
 
 // our clients
-const aSocketClient: IASocketClient = {};
 
 // our rooms
-const aRoom: ARoom = {};
+const rooms: ARoom = new ARoom();
 // create default room
-RoomFabric.fCreateDefaultRoom(aRoom);
+RoomFabric.fCreateDefaultRoom(rooms);
 
-const msgProvider = new MsgProvider(aSocketClient, aRoom);
-
-
+const msgProvider = new MsgProvider(rooms);
 
 /**
  * Server handler
@@ -49,18 +49,21 @@ const server = net.createServer((socket: net.Socket) => {
     });
 
     console.log(`[${fGetNowDataStr()}] Client connect ${user.token}`);
-    aRoom[default_room].fJoin(user);
+    rooms.aRoom[default_room].fJoin(user);
 
 
     /* receiving data from a client */
     socket.on('data', async (data: Buffer) => {
+        console.log(data.toString());
         msgProvider.faOnReserveMsg(user.token, data);
     });
 
     /* client disconnect */
-    socket.on('end', () => {
-        delete aSocketClient[user.token];
+    socket.on('close', () => {
         console.log(`[${fGetNowDataStr()}] Client ${user.token} disconnect`);
+        rooms.fLeft(user.token);
+        delete aSocketClient[user.token];
+
         // say all client exit
         msgProvider.faSendMsgAll({
             from: '',
@@ -78,7 +81,7 @@ const server = net.createServer((socket: net.Socket) => {
 
 /* server error */
 server.on('error', (err: any) => {
-    console.log(`[${fGetNowDataStr()}] Error:`, err);
+    console.log(`[${fGetNowDataStr()}] >>> Error:`, err);
 });
 
 
@@ -88,3 +91,4 @@ server.listen({
 }, () => {
     console.log('opened server on', server.address());
 });
+

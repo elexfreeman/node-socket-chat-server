@@ -10,8 +10,8 @@ export class Room implements IRoom {
         this.aClient.push(user.token);
     }
 
-    public fLeft(user: User) {
-        const index = this.aClient.indexOf(user.token);
+    public fLeft(token: string) {
+        const index = this.aClient.indexOf(token);
         if (index > -1) {
             this.aClient.splice(index, 1);
         }
