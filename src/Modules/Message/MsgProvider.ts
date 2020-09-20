@@ -8,7 +8,7 @@ import { ARoom } from "../Room/ARoom";
 import { aSocketClient } from "../socketClient";
 
 /**
- * Класс отправляет и получает сообщения от клиентов
+ * The class sends and receives messages from clients
  */
 export class MsgProvider implements IMsgProvider {
 
@@ -19,9 +19,9 @@ export class MsgProvider implements IMsgProvider {
     }
 
     /**
-     * Полученно сообщение от клиента
-     * @param token - токен клиента
-     * @param data  - данные сообщения
+     * Received message from client 
+     * @param token 
+     * @param data  
      */
     async faOnReserveMsg(token: string, data: Buffer): Promise<void> {
         try {
@@ -34,7 +34,7 @@ export class MsgProvider implements IMsgProvider {
                 throw "Message contains no addressee"
             }
 
-            // получили сообщенеи из комнаты
+            // received messages from the room
             if (msg.address_type == EAddressType.Room) {
                 console.log(`Msg from ${token} >>`, msg.content);
                 await this.faSendMsgToRoom(msg, this.rooms.aRoom[msg.to]);
@@ -42,19 +42,12 @@ export class MsgProvider implements IMsgProvider {
 
 
         } catch (e) {
-            // ошибка при приеме сообщения
             console.log(e);
-            // отправляем обратно клиенту ошибку
-           /*  this.faSendMsg({
-                to: token,
-                from: "",
-                content: e,
-            }); */
         }
     }
 
     /**
-     * Отправляет сообщение клиенту
+     * send msg to client
      * @param msg 
      */
     async faSendMsg(msg: IMessage): Promise<boolean> {
@@ -68,7 +61,7 @@ export class MsgProvider implements IMsgProvider {
     }
 
     /**
-     * Отправляет сообщение всем клиентам
+     * Sends a message to all clients 
      * @param msg 
      */
     async faSendMsgAll(msg: IMessage): Promise<boolean> {
@@ -84,7 +77,7 @@ export class MsgProvider implements IMsgProvider {
     }
 
     /**
-     * Отправляет сообщение в комнату
+     * Sends a message to the room
      * @param msg 
      * @param room 
      */
@@ -94,9 +87,9 @@ export class MsgProvider implements IMsgProvider {
             throw 'This room is not exist!';
         }
 
-        // перебираем клиентов в комнате и отправляем им сообщения
+        // we sort out clients in the room and send them messages
         for (let k = 0; k < room.aClient.length; k++) {
-            // try-catch так-как клиента может не быть
+            // try-catch so how can there be no client 
             try {
                 if (room.aClient[k] == data.from) { continue }
 

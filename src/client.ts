@@ -19,7 +19,7 @@ const client = new net.Socket();
 
 client.connect(port, host, function () {
     console.log(`Connected to server ${host}:${port}`);
-    // запускаем эвент набора текста
+    // start the typing event
     myEmitter.emit('event');
 });
 
@@ -45,6 +45,7 @@ myEmitter.on('event', () => {
 
     rl.prompt();
 
+    // recerve text from keyboard
     rl.on('line', (line: string) => {
 
         const m = line.trim();
@@ -55,6 +56,7 @@ myEmitter.on('event', () => {
             address_type: EAddressType.Room,
         });
 
+        // send msg
         client.write(Message.toString(msg));
         rl.prompt();
     }).on('close', () => {

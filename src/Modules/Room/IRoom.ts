@@ -1,7 +1,7 @@
 import { Room } from "./Room";
 
 /**
- * Комнату чатов
+ * chat room 
  */
 export interface IRoom {
     token: string;

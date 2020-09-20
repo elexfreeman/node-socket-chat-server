@@ -3,9 +3,8 @@ const moment = require('moment');
 
 import { fGenerateToken } from "./Lib/HashFunc";
 import { User } from "./Modules/User/User";
-import { IASocketClient } from "./Modules/SocketClient/ISocketClient";
 import { MsgProvider } from "./Modules/Message/MsgProvider";
-import { IARoom, default_room } from "./Modules/Room/IRoom";
+import { default_room } from "./Modules/Room/IRoom";
 import { RoomFabric } from "./Modules/Room/RoomFabric";
 import { ARoom } from "./Modules/Room/ARoom";
 
