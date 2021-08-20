@@ -3,7 +3,6 @@ import * as net from "net";
 import { MessageFabric } from "./Modules/Message/MessageFabric";
 import { default_room } from "./Modules/Room/IRoom";
 import { Message } from "./Modules/Message/Message";
-import { EAddressType } from "./Modules/Message/IMessage";
 
 import { EventEmitter } from 'events';
 import * as readline from 'readline';
@@ -28,6 +27,7 @@ client.on('data', (data: Buffer) => {
         const msg = MessageFabric.BuildFromBuffer(data);
         console.log('Received: ' + msg.content);
     } catch (e) {
+        console.log(e);
     }
 });
 
@@ -53,7 +53,7 @@ myEmitter.on('event', () => {
             content: m,
             to: default_room,
             from: '',
-            address_type: EAddressType.Room,
+            route: 'msg_room',
         });
 
         // send msg

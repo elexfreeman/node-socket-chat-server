@@ -3,20 +3,23 @@ import { Message } from "./Message";
 
 export class MessageFabric {
     static Build(msg: IMessage) {
+        console.log(msg);
+        
         let resp = new Message();
 
         if (!msg) {
             throw EErrMsg.msg_is_empty;
         }
 
-        if (!msg.address_type) {
+        if (!msg.route) {
             throw EErrMsg.address_type;
         }
 
         resp.content = msg.content;
         resp.from = msg.from;
         resp.to = msg.to;
-        resp.address_type = msg.address_type;
+        resp.route = msg.route;
+        resp.sender = msg.sender;
 
         return resp;
     }

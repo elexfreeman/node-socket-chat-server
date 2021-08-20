@@ -3,6 +3,7 @@ import { IASocketClient } from "../SocketClient/ISocketClient";
 export enum EAddressType {
     Private = 1,
     Room = 2,
+    Cmd = 3,
 }
 
 export enum EErrMsg {
@@ -16,16 +17,12 @@ export enum EErrMsg {
 export interface IMessage {
     content?: any;
     from?: string;
+    sender?: string;
     to?: string;
-    address_type?: EAddressType;
+    route?: string;
 }
 
 
 export type MsgCallback = (msg: IMessage) => void;
 
-export interface IMsgProvider {
-    faOnReserveMsg: (token: string, data: Buffer) => Promise<void>;
-    faSendMsg: (msg: IMessage) => Promise<boolean>;
-    faSendMsgAll: (msg: IMessage) => Promise<boolean>;
-}
 

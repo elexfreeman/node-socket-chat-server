@@ -5,7 +5,7 @@ import { IUser } from "../User/User";
  * Интерфейс клиента подключенного к соединеню
  */
 export interface ISocketClient {
-    user?: IUser, // user info
+    vUser?: IUser, // user info
     socket: net.Socket, // pointer to client socket
 }
 

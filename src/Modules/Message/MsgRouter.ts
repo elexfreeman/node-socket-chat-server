@@ -1,4 +1,4 @@
-import { IMsgProvider, IMessage, EAddressType } from "./IMessage";
+import { IMessage, EAddressType } from "./IMessage";
 import { IASocketClient } from "../socketClient/ISocketClient";
 import { MessageFabric } from "./MessageFabric";
 import { IARoom } from "../Room/IRoom";
@@ -6,11 +6,13 @@ import { Room } from "../Room/Room";
 import { ARoom } from "../Room/ARoom";
 
 import { aSocketClient } from "../socketClient";
+import { Route } from "./Route";
+import { MsgRoomRoute } from "./MsgRoomRoute";
 
 /**
  * The class sends and receives messages from clients
  */
-export class MsgProvider implements IMsgProvider {
+export class MsgRouter {
 
     public rooms: ARoom;
 
@@ -24,22 +26,31 @@ export class MsgProvider implements IMsgProvider {
      * @param data  
      */
     async faOnReserveMsg(token: string, data: Buffer): Promise<void> {
+
+        const aRoute: Route[] = [];
+
+
         try {
-
             const msg = MessageFabric.BuildFromBuffer(data)
-
             msg.from = token;
+            msg.sender = token;
 
             if (!msg.to) {
                 throw "Message contains no addressee"
             }
 
-            // received messages from the room
-            if (msg.address_type == EAddressType.Room) {
-                console.log(`Msg from ${token} >>`, msg.content);
-                await this.faSendMsgToRoom(msg, this.rooms.aRoom[msg.to]);
-            }
+            aRoute.push(new MsgRoomRoute({
+                vMsg: msg,
+                vRooms: this.rooms,
+                sRoute: msg.route,
+                sToken: token,
+            }));
 
+            for (let k = 0; k < aRoute.length; k++) {
+                if (await aRoute[k].faAction(msg.route)) {
+                    break;
+                }
+            }
 
         } catch (e) {
             console.log(e);
@@ -76,33 +87,4 @@ export class MsgProvider implements IMsgProvider {
         return true;
     }
 
-    /**
-     * Sends a message to the room
-     * @param msg 
-     * @param room 
-     */
-    async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
-
-        if (!this.rooms.aRoom[room.token]) {
-            throw 'This room is not exist!';
-        }
-
-        // we sort out clients in the room and send them messages
-        for (let k = 0; k < room.aClient.length; k++) {
-            // try-catch so how can there be no client 
-            try {
-                if (room.aClient[k] == data.from) { continue }
-
-                const msg = MessageFabric.Build(data);
-                msg.address_type = EAddressType.Room;
-                msg.from = room.token;
-                msg.to = room.aClient[k];
-                await this.faSendMsg(msg);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-
-        return true;
-    }
 }

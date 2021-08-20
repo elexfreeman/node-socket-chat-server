@@ -3,7 +3,7 @@ const moment = require('moment');
 
 import { fGenerateToken } from "./Lib/HashFunc";
 import { User } from "./Modules/User/User";
-import { MsgProvider } from "./Modules/Message/MsgProvider";
+import { MsgRouter } from "./Modules/Message/MsgRouter";
 import { default_room } from "./Modules/Room/IRoom";
 import { RoomFabric } from "./Modules/Room/RoomFabric";
 import { ARoom } from "./Modules/Room/ARoom";
@@ -18,56 +18,55 @@ const fGetNowDataStr = (): string => moment().format('DD.MM.YYYY HH:mm:ss');
 // our clients
 
 // our rooms
-const rooms: ARoom = new ARoom();
+const vRooms: ARoom = new ARoom();
 // create default room
-RoomFabric.fCreateDefaultRoom(rooms);
+RoomFabric.fCreateDefaultRoom(vRooms);
 
-const msgProvider = new MsgProvider(rooms);
+const vMsgRouter = new MsgRouter(vRooms);
 
 /**
  * Server handler
  */
 const server = net.createServer((socket: net.Socket) => {
 
-    const user = new User();
+    const vUser = new User();
 
     /* we generate a token to the client */
-    user.token = fGenerateToken();
+    vUser.token = fGenerateToken();
 
     // add client info to shared memmory
-    aSocketClient[user.token] = {
-        user: user,
+    aSocketClient[vUser.token] = {
+        vUser: vUser,
         socket: socket,
     };
 
     // say all new client enter
-    msgProvider.faSendMsgAll({
+    vMsgRouter.faSendMsgAll({
         from: '',
         to: '',
-        content: `Client ${user.token} connected.`,
+        content: `Client ${vUser.token} connected.`,
     });
 
-    console.log(`[${fGetNowDataStr()}] Client connect ${user.token}`);
-    rooms.aRoom[default_room].fJoin(user);
+    console.log(`[${fGetNowDataStr()}] Client connect ${vUser.token}`);
+    vRooms.aRoom[default_room].fJoin(vUser);
 
 
     /* receiving data from a client */
     socket.on('data', async (data: Buffer) => {
-        console.log(data.toString());
-        msgProvider.faOnReserveMsg(user.token, data);
+        vMsgRouter.faOnReserveMsg(vUser.token, data);
     });
 
     /* client disconnect */
     socket.on('close', () => {
-        console.log(`[${fGetNowDataStr()}] Client ${user.token} disconnect`);
-        rooms.fLeft(user.token);
-        delete aSocketClient[user.token];
+        console.log(`[${fGetNowDataStr()}] Client ${vUser.token} disconnect`);
+        vRooms.fLeft(vUser.token);
+        delete aSocketClient[vUser.token];
 
         // say all client exit
-        msgProvider.faSendMsgAll({
+        vMsgRouter.faSendMsgAll({
             from: '',
             to: '',
-            content: `Client ${user.token} disconnected.`,
+            content: `Client ${vUser.token} disconnected.`,
         });
     });
 

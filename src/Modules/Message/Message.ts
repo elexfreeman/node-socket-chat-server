@@ -5,7 +5,8 @@ export class Message implements IMessage {
     public content: string;
     public from: string;
     public to: string;
-    public address_type: EAddressType;
+    public route: string;
+    public sender: string;
 
 
     static toString(msg: Message) {
@@ -13,7 +14,8 @@ export class Message implements IMessage {
             content: msg.content,
             from: msg.from,
             to: msg.to,
-            address_type: msg.address_type,
+            route: msg.route,
+            sender: msg.sender,
         })
     }
 
