@@ -15,6 +15,8 @@ import { aSocketClient } from "./Modules/socketClient";
  */
 const fGetNowDataStr = (): string => moment().format('DD.MM.YYYY HH:mm:ss');
 
+let userId = 0;
+
 // our clients
 
 // our rooms
@@ -30,6 +32,8 @@ const vMsgRouter = new MsgRouter(vRooms);
 const server = net.createServer((socket: net.Socket) => {
 
     const vUser = new User();
+    vUser.id = userId;
+    userId++;
 
     /* we generate a token to the client */
     vUser.token = fGenerateToken();
@@ -47,7 +51,7 @@ const server = net.createServer((socket: net.Socket) => {
         content: `Client ${vUser.token} connected.`,
     });
 
-    console.log(`[${fGetNowDataStr()}] Client connect ${vUser.token}`);
+    console.log(`[${fGetNowDataStr()}] Client connect ${vUser.username}`);
     vRooms.aRoom[default_room].fJoin(vUser);
 
 

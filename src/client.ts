@@ -49,11 +49,17 @@ myEmitter.on('event', () => {
     rl.on('line', (line: string) => {
 
         const m = line.trim();
+        let sRoute = 'msg_room';
+
+        if (m == 'user_list') {
+            sRoute = 'user_list';
+        }
+
         const msg = MessageFabric.Build({
             content: m,
             to: default_room,
             from: '',
-            route: 'msg_room',
+            route: sRoute,
         });
 
         // send msg

@@ -1,4 +1,6 @@
+import { fGenerateToken } from "../../Lib/HashFunc";
 import { IAuthProvider } from "../AuthProvider/IAuthProvider";
+import { UserNameGenerator } from "./UserNameGenerator";
 
 export interface IUser {
     id?: number;
@@ -12,6 +14,10 @@ export class User implements IUser {
     public username: string;
     public password: string;
     public token: string;
+
+    constructor() {
+        this.username = new UserNameGenerator().fGetNameLong();
+    }
 
     public fIsLogin(): boolean {
         return Boolean(this.token);

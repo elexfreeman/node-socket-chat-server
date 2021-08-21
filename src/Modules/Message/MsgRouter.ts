@@ -8,6 +8,7 @@ import { ARoom } from "../Room/ARoom";
 import { aSocketClient } from "../socketClient";
 import { Route } from "./Route";
 import { MsgRoomRoute } from "./MsgRoomRoute";
+import { UserListRoute } from "./UserListRoute";
 
 /**
  * The class sends and receives messages from clients
@@ -29,7 +30,6 @@ export class MsgRouter {
 
         const aRoute: Route[] = [];
 
-
         try {
             const msg = MessageFabric.BuildFromBuffer(data)
             msg.from = token;
@@ -40,6 +40,13 @@ export class MsgRouter {
             }
 
             aRoute.push(new MsgRoomRoute({
+                vMsg: msg,
+                vRooms: this.rooms,
+                sRoute: msg.route,
+                sToken: token,
+            }));
+
+            aRoute.push(new UserListRoute({
                 vMsg: msg,
                 vRooms: this.rooms,
                 sRoute: msg.route,
