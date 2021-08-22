@@ -6,7 +6,7 @@ export class Message implements IMessage {
     public from: string;
     public to: string;
     public route: string;
-    public sender: string;
+    public sender: number;
 
 
     static toString(msg: Message) {

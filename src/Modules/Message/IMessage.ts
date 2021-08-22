@@ -17,7 +17,7 @@ export enum EErrMsg {
 export interface IMessage {
     content?: any;
     from?: string;
-    sender?: string;
+    sender?: number;
     to?: string;
     route?: string;
 }

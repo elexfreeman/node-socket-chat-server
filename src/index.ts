@@ -9,6 +9,7 @@ import { RoomFabric } from "./Modules/Room/RoomFabric";
 import { ARoom } from "./Modules/Room/ARoom";
 
 import { aSocketClient } from "./Modules/socketClient";
+import { UserListRoute } from "./Modules/Message/UserListRoute";
 
 /**
  * The current date
@@ -29,7 +30,7 @@ const vMsgRouter = new MsgRouter(vRooms);
 /**
  * Server handler
  */
-const server = net.createServer((socket: net.Socket) => {
+const server = net.createServer(async (socket: net.Socket) => {
 
     const vUser = new User();
     vUser.id = userId;
@@ -45,14 +46,16 @@ const server = net.createServer((socket: net.Socket) => {
     };
 
     // say all new client enter
-    vMsgRouter.faSendMsgAll({
-        from: '',
-        to: '',
-        content: `Client ${vUser.token} connected.`,
-    });
+    // vMsgRouter.faSendMsgAll({
+    //     from: '',
+    //     to: '',
+    //     content: `Client ${vUser.token} connected.`,
+    // });
 
-    console.log(`[${fGetNowDataStr()}] Client connect ${vUser.username}`);
+    console.log(`[${fGetNowDataStr()}] Client connect ${vUser.username} \r\n`);
     vRooms.aRoom[default_room].fJoin(vUser);
+
+    await UserListRoute.faReloadUserList(vRooms);
 
 
     /* receiving data from a client */
@@ -72,6 +75,7 @@ const server = net.createServer((socket: net.Socket) => {
             to: '',
             content: `Client ${vUser.token} disconnected.`,
         });
+        UserListRoute.faReloadUserList(vRooms);
     });
 
     /* socket error */

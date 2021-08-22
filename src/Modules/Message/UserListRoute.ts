@@ -1,9 +1,7 @@
-import { Room } from "../Room/Room";
-import { EAddressType, IMessage } from "./IMessage";
-import { MessageFabric } from "./MessageFabric";
 import { RequestI, Route } from "./Route"
 import { aSocketClient } from '../socketClient';
 import { Message } from "./Message";
+import { ARoom } from "../Room/ARoom";
 
 export interface IUserListItem {
     id: number;
@@ -33,10 +31,10 @@ export class UserListRoute extends Route {
         }
 
         const vMsg = new Message();
-        vMsg.content = JSON.stringify(aUser);
+        vMsg.content = JSON.stringify({ user_list: aUser });
         vMsg.route = this.vReq.sRoute;
-        vMsg.from = '',
-        vMsg.sender = '',
+        vMsg.from = '';
+        vMsg.sender = -1;
         vMsg.to = this.vReq.sToken;
 
         try {
@@ -47,6 +45,16 @@ export class UserListRoute extends Route {
 
     }
 
-
+    static async faReloadUserList(vRooms: ARoom) {
+        for (let k in aSocketClient) {
+            const v = new UserListRoute({
+                vMsg: new Message(),
+                sRoute: 'user_list',
+                sToken: aSocketClient[k].vUser.token,
+                vRooms: vRooms,
+            });
+            await v.faAction('user_list');
+        }
+    }
 
 }

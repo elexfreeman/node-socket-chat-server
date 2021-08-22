@@ -1,4 +1,5 @@
 import { Room } from "../Room/Room";
+import { aSocketClient } from "../socketClient";
 import { EAddressType, IMessage } from "./IMessage";
 import { MessageFabric } from "./MessageFabric";
 import { RequestI, Route } from "./Route"
@@ -19,7 +20,7 @@ export class MsgRoomRoute extends Route {
 
         try {
             this.vReq.vMsg.from = this.vReq.sToken;
-            this.vReq.vMsg.sender = this.vReq.sToken;
+            this.vReq.vMsg.sender = aSocketClient[this.vReq.sToken].vUser.id;
             // received messages from the room
             console.log(`Msg from ${this.vReq.sToken} >>`, this.vReq.vMsg.content);
             await this.faSendMsgToRoom(this.vReq.vMsg, this.vReq.vRooms.aRoom[this.vReq.vMsg.to]);

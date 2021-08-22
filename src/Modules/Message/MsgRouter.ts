@@ -10,6 +10,8 @@ import { Route } from "./Route";
 import { MsgRoomRoute } from "./MsgRoomRoute";
 import { UserListRoute } from "./UserListRoute";
 
+
+
 /**
  * The class sends and receives messages from clients
  */
@@ -33,7 +35,7 @@ export class MsgRouter {
         try {
             const msg = MessageFabric.BuildFromBuffer(data)
             msg.from = token;
-            msg.sender = token;
+            msg.sender = aSocketClient[token].vUser.id;
 
             if (!msg.to) {
                 throw "Message contains no addressee"

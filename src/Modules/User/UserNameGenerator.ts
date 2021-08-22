@@ -23,9 +23,9 @@ export class UserNameGenerator {
     fGetNameLong(): string {
         let resp = '';
 
-        resp += this.aName[fRandomInteger(0, this.aName.length)];
+        resp += this.aName[fRandomInteger(0, this.aName.length - 1)];
         resp += ' ';
-        resp += this.aSurname[fRandomInteger(0, this.aSurname.length)];
+        resp += this.aSurname[fRandomInteger(0, this.aSurname.length - 1)];
 
         return resp;
     }
