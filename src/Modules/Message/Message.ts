@@ -1,6 +1,4 @@
-import { IMessage, EAddressType } from "./IMessage";
-
-export class Message implements IMessage {
+export class Message  {
 
     public content: string;
     public from: string;

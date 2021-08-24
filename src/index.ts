@@ -3,13 +3,12 @@ const moment = require('moment');
 
 import { fGenerateToken } from "./Lib/HashFunc";
 import { User } from "./Modules/User/User";
-import { MsgRouter } from "./Modules/Message/MsgRouter";
 import { default_room } from "./Modules/Room/IRoom";
-import { RoomFabric } from "./Modules/Room/RoomFabric";
-import { ARoom } from "./Modules/Room/ARoom";
 
-import { aSocketClient } from "./Modules/socketClient";
-import { UserListRoute } from "./Modules/Message/UserListRoute";
+import { g_aSocketClient } from "./Modules/socketClient";
+import { UserListRoute } from "./Modules/Message/RouteCtrl/UserListRoute";
+import { g_vRooms } from "./Modules/Room/ARoom";
+import { g_vMsgRouter } from "./Modules/Message/MsgRouter";
 
 /**
  * The current date
@@ -20,12 +19,7 @@ let userId = 0;
 
 // our clients
 
-// our rooms
-const vRooms: ARoom = new ARoom();
-// create default room
-RoomFabric.fCreateDefaultRoom(vRooms);
 
-const vMsgRouter = new MsgRouter(vRooms);
 
 /**
  * Server handler
@@ -40,7 +34,7 @@ const server = net.createServer(async (socket: net.Socket) => {
     vUser.token = fGenerateToken();
 
     // add client info to shared memmory
-    aSocketClient[vUser.token] = {
+    g_aSocketClient[vUser.token] = {
         vUser: vUser,
         socket: socket,
     };
@@ -53,29 +47,32 @@ const server = net.createServer(async (socket: net.Socket) => {
     // });
 
     console.log(`[${fGetNowDataStr()}] Client connect ${vUser.username} \r\n`);
-    vRooms.aRoom[default_room].fJoin(vUser);
+    g_vRooms.aRoom[default_room].fJoin(vUser);
 
-    await UserListRoute.faReloadUserList(vRooms);
+    await UserListRoute.faReloadUserList(g_vRooms);
 
 
     /* receiving data from a client */
     socket.on('data', async (data: Buffer) => {
-        vMsgRouter.faOnReserveMsg(vUser.token, data);
+        g_vMsgRouter.faOnReserveMsg(vUser.token, data);
     });
 
     /* client disconnect */
     socket.on('close', () => {
-        console.log(`[${fGetNowDataStr()}] Client ${vUser.token} disconnect`);
-        vRooms.fLeft(vUser.token);
-        delete aSocketClient[vUser.token];
+        console.log(`[${fGetNowDataStr()}] Client ${vUser.username} disconnect`);
+        g_vRooms.fLeft(vUser.token);
+        delete g_aSocketClient[vUser.token];
 
         // say all client exit
-        vMsgRouter.faSendMsgAll({
-            from: '',
+        g_vMsgRouter.faSendMsgAll({
+            from: vUser.token,
             to: '',
-            content: `Client ${vUser.token} disconnected.`,
+            route:'msg_room',
+            content: `Client ${vUser.username} disconnected.`,
         });
-        UserListRoute.faReloadUserList(vRooms);
+
+        // reload user list from all client
+        UserListRoute.faReloadUserList(g_vRooms);
     });
 
     /* socket error */

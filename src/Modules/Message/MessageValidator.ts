@@ -1,10 +1,8 @@
 import { IMessage, EErrMsg } from "./IMessage";
 import { Message } from "./Message";
 
-export class MessageFabric {
+export class MessageValidator {
     static Build(msg: IMessage) {
-        console.log(msg);
-        
         let resp = new Message();
 
         if (!msg) {
@@ -26,11 +24,6 @@ export class MessageFabric {
 
 
     static BuildFromBuffer(data: Buffer) {
-        console.log('buffer.length', data.length);
-        console.log(data.toString());
-        console.log("\r\n");
-        
-        
-        return MessageFabric.Build(JSON.parse(data.toString()))
+        return MessageValidator.Build(JSON.parse(data.toString()))
     }
 }

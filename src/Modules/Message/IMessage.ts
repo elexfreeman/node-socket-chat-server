@@ -1,5 +1,3 @@
-import { IASocketClient } from "../SocketClient/ISocketClient";
-
 export enum EAddressType {
     Private = 1,
     Room = 2,

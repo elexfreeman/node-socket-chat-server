@@ -10,6 +10,7 @@ export interface IUser {
 }
 
 export class User implements IUser {
+
     public id: number;
     public username: string;
     public password: string;

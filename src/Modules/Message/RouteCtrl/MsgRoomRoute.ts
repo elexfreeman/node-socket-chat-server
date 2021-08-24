@@ -1,29 +1,30 @@
-import { Room } from "../Room/Room";
-import { aSocketClient } from "../socketClient";
-import { EAddressType, IMessage } from "./IMessage";
-import { MessageFabric } from "./MessageFabric";
-import { RequestI, Route } from "./Route"
+import { g_vRooms } from "../../Room/ARoom";
+import { Room } from "../../Room/Room";
+import { g_aSocketClient } from "../../socketClient";
+import { IMessage } from "../IMessage";
+import { Message } from "../Message";
+import { MessageValidator } from "../MessageValidator";
+import { Route } from "./Route"
 
 export class MsgRoomRoute extends Route {
 
-    constructor(vReq: RequestI) {
-        vReq.sRoute = 'msg_room';
+    constructor(vReq: Message) {
         super(vReq);
+        this.sRoute = 'msg_room';
     }
 
     public async faAction(sRoute: string): Promise<boolean> {
-        console.log('sRouter',sRoute);
-        
-        if (sRoute !== this.vReq.sRoute) {
+        console.log('sRouter', sRoute);
+
+        if (sRoute !== this.sRoute) {
             return false;
         }
 
         try {
-            this.vReq.vMsg.from = this.vReq.sToken;
-            this.vReq.vMsg.sender = aSocketClient[this.vReq.sToken].vUser.id;
+            this.vReq.sender = g_aSocketClient[this.vReq.from].vUser.id;
             // received messages from the room
-            console.log(`Msg from ${this.vReq.sToken} >>`, this.vReq.vMsg.content);
-            await this.faSendMsgToRoom(this.vReq.vMsg, this.vReq.vRooms.aRoom[this.vReq.vMsg.to]);
+            console.log(`Msg from ${this.vReq.from} >>`, this.vReq.content);
+            await this.faSendMsgToRoom(this.vReq, g_vRooms.aRoom[this.vReq.to]);
         } catch (e) {
             console.log(e);
         }
@@ -36,9 +37,9 @@ export class MsgRoomRoute extends Route {
      * @param msg 
      * @param room 
      */
-    async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
+    private async faSendMsgToRoom(data: IMessage, room: Room): Promise<boolean> {
 
-        if (!this.vReq.vRooms.aRoom[room.token]) {
+        if (!g_vRooms.aRoom[room.token]) {
             throw 'This room is not exist!';
         }
 
@@ -48,8 +49,8 @@ export class MsgRoomRoute extends Route {
             try {
                 if (room.aClient[k] == data.from) { continue }
 
-                const msg = MessageFabric.Build(data);
-                msg.route = this.vReq.sRoute;
+                const msg = MessageValidator.Build(data);
+                msg.route = this.sRoute;
                 msg.from = room.token;
                 msg.to = room.aClient[k];
                 await this.faSendMsg(msg);

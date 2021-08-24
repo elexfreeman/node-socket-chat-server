@@ -1,6 +1,6 @@
 // Include Nodejs' net module.
 import * as net from "net";
-import { MessageFabric } from "./Modules/Message/MessageFabric";
+import { MessageValidator } from "./Modules/Message/MessageValidator";
 import { default_room } from "./Modules/Room/IRoom";
 import { Message } from "./Modules/Message/Message";
 
@@ -16,6 +16,17 @@ const myEmitter = new MyEmitter();
 
 const client = new net.Socket();
 
+
+const fPrintUserList = (vMsg: Message) => {
+    console.log('---------------------');
+    console.log('User list');
+    const aUser = JSON.parse(vMsg.content);
+    for (let k = 0; k < aUser.user_list.length; k++) {
+        console.log(`${aUser.user_list[k].id}: ${aUser.user_list[k].username}`);
+    }
+    console.log('---------------------');
+}
+
 client.connect(port, host, function () {
     console.log(`Connected to server ${host}:${port}`);
     // start the typing event
@@ -24,8 +35,13 @@ client.connect(port, host, function () {
 
 client.on('data', (data: Buffer) => {
     try {
-        const msg = MessageFabric.BuildFromBuffer(data);
-        console.log('Received: ' + msg.content);
+        const vMsg = MessageValidator.BuildFromBuffer(data);
+        if (vMsg.route == 'user_list') {
+            fPrintUserList(vMsg);
+        }
+        if (vMsg.route == 'msg_room') {
+            console.log('Received: ' + vMsg.content);
+        }
     } catch (e) {
         console.log(e);
     }
@@ -55,7 +71,7 @@ myEmitter.on('event', () => {
             sRoute = 'user_list';
         }
 
-        const msg = MessageFabric.Build({
+        const vMsg = MessageValidator.Build({
             content: m,
             to: default_room,
             from: '',
@@ -63,7 +79,7 @@ myEmitter.on('event', () => {
         });
 
         // send msg
-        client.write(Message.toString(msg));
+        client.write(Message.toString(vMsg));
         rl.prompt();
     }).on('close', () => {
         process.exit(0);

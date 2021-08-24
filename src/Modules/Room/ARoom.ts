@@ -1,4 +1,5 @@
-import { IARoom } from "./IRoom";
+import { default_room, IARoom } from "./IRoom";
+import { Room } from "./Room";
 
 
 /**
@@ -23,3 +24,21 @@ export class ARoom {
     }
 
 }
+
+export class RoomFabric {
+    static fCreateDefaultRoom(rooms: ARoom): Room {
+        let resp = new Room();
+
+        resp.aClient = [];
+        resp.caption = default_room;
+        resp.token = default_room;
+        rooms.aRoom[default_room] = resp;
+
+        return resp;
+    }
+}
+// our rooms
+export const g_vRooms: ARoom = new ARoom();
+
+// create default room
+RoomFabric.fCreateDefaultRoom(g_vRooms);
